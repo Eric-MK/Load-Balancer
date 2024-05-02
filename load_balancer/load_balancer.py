@@ -78,3 +78,7 @@ def add_servers():
         },
         "status": "successful"
     }), 200
+    
+if __name__ == '__main__':
+        update_server_containers()  # Initial update at startup
+        app.run(host='0.0.0.0', port=5000, debug=True)

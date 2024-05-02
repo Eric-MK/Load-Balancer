@@ -7,6 +7,7 @@ import docker
 import re
 
 
+
 app = Flask(__name__)
 
 client = docker.from_env()
@@ -18,7 +19,6 @@ def update_server_containers():
     global server_containers
     containers = client.containers.list()
     server_containers = [container.name for container in containers if 'server' in container.name.lower()]
-
 
 @app.route('/rep', methods=['GET'])
 def get_replicas():
@@ -32,7 +32,7 @@ def get_replicas():
         },
         "status": "successful"
     }), 200
-    
+
 # add
 @app.route('/add', methods=['POST'])
 def add_servers():

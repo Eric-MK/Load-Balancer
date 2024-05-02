@@ -9,6 +9,11 @@ import re
 
 app = Flask(__name__)
 
+client = docker.from_env()
+
+# Initialize global list
+server_containers = []
+
 def update_server_containers():
     global server_containers
     containers = client.containers.list()

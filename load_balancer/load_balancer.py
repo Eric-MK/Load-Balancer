@@ -231,3 +231,30 @@ class ConsistentHash:
             idx = 0
         return self.server_map[self.hash_ring[idx]]
 
+# Initialize the consistent hash
+consistent_hash = ConsistentHash()
+
+@app.route('/<path>', methods=['GET'])
+def route_request(path):
+    update_server_containers()  # Ensure server list is updated
+    # Assume unique request ID is passed as a query parameter, e.g., /home?request_id=12345
+    request_id = request.args.get('request_id', path)  # Default to path if no request_id provided
+    target_server = consistent_hash.get_server(request_id)
+    
+    if target_server:
+        try:
+            response = requests.get(f"http://{target_server}:5000/{path}")
+            return jsonify({"message": response.text, "server": target_server}), response.status_code
+        except requests.exceptions.RequestException as e:
+            # Detect failure and spawn new server instance
+            logging.error(f"Error forwarding request to {target_server}: {str(e)}. Spawning a new instance.")
+            new_hostname = "server_{}".format(max([int(re.search(r'\d+', name).group()) for name in server_containers]) + 1)
+            spawn_server(new_hostname)
+            return jsonify({"message": f"Error forwarding request to {target_server}: {str(e)}. New server instance {new_hostname} spawned.", "status": "failure"}), 500
+    else:
+        return jsonify({"message": "No available servers to handle the request", "status": "failure"}), 500
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    update_server_containers()  # Initial update at startup
+    app.run(host='0.0.0.0', port=5000, debug=True)

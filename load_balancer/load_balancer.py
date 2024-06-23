@@ -191,10 +191,10 @@ class ConsistentHash:
 
     # sh256
     def _hash_function(self, key):
-    """Basic hash function"""
-    if isinstance(key, int):
-        key = str(key)  # Convert integer key to string
-    return int(hashlib.sha256(key.encode('utf-8')).hexdigest(), 16) % self.num_slots
+        """Basic hash function"""
+        if isinstance(key, int):
+            key = str(key)  # Convert integer key to string
+        return int(hashlib.sha256(key.encode('utf-8')).hexdigest(), 16) % self.num_slots
 
     # md5
     ''' def _hash_function(self, key):

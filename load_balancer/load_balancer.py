@@ -179,4 +179,55 @@ def remove_container():
     else:
         return jsonify({"message": "Unable to remove container", "status": "failure"}), 500
 
+import hashlib
+import bisect
+
+class ConsistentHash:
+    def __init__(self, num_slots=512, virtual_servers_per_server=9):
+        self.num_slots = num_slots
+        self.virtual_servers_per_server = virtual_servers_per_server
+        self.hash_ring = []
+        self.server_map = {}
+
+    # sh256
+    def _hash_function(self, key):
+    """Basic hash function"""
+    if isinstance(key, int):
+        key = str(key)  # Convert integer key to string
+    return int(hashlib.sha256(key.encode('utf-8')).hexdigest(), 16) % self.num_slots
+
+    # md5
+    ''' def _hash_function(self, key):
+        if isinstance(key, int):
+            key = str(key)  # Convert integer key to string
+        return int(hashlib.md5(key.encode('utf-8')).hexdigest(), 16) % self.num_slots '''
+
+    def _virtual_server_hash(self, server_id, replica_id):
+        combined_id = f"{server_id}#{replica_id}"
+        hash_value = self._hash_function(combined_id)
+        return hash_value
+
+    
+    def add_server(self, server_id):
+        """Add server and its replicas to the hash ring"""
+        for i in range(self.virtual_servers_per_server):
+            virtual_hash = self._virtual_server_hash(server_id, i)
+            self.hash_ring.append(virtual_hash)
+            self.server_map[virtual_hash] = server_id
+        self.hash_ring.sort()
+    
+    def remove_server(self, server_id):
+        """Remove server and its replicas from the hash ring"""
+        self.hash_ring = [h for h in self.hash_ring if self.server_map[h] != server_id]
+        self.server_map = {h: s for h, s in self.server_map.items() if s != server_id}
+    
+    def get_server(self, key):
+        """Get server for the given key"""
+        if not self.hash_ring:
+            return None
+        hash_value = self._hash_function(key)
+        idx = bisect.bisect(self.hash_ring, hash_value)
+        if idx == len(self.hash_ring):
+            idx = 0
+        return self.server_map[self.hash_ring[idx]]
 

@@ -4,6 +4,8 @@
 
 - **load_balancer/**: Contains the load balancer application files.
 - **myserver/**: Contains server application files used by the load balancer.
+- **testing_code/**: Contains Python files to analyse and test the load balancer.
+- **screenshot/**: Contains figures and images for the tested results.
 - **docker-compose.yml**: Defines Docker services for load balancer and server instances.
 - **Makefile**: Provides convenient commands for Docker operations.
 - **Flask**: Chosen for its lightweight and easy-to-use framework for building the load balancer and server applications.
@@ -15,14 +17,16 @@
 
 - **Single Load Balancer**: The setup assumes a single load balancer instance handling all incoming requests.
 - **Request Testing Endpoint**: Assumes testing the load balancer with requests to `http://localhost:5000/home` using different request IDs to verify load balancing functionality.
-- Used 10 request to test the server failure response, for better visual on the terminal.
+- Used 10 requests to test the server failure response, for better visual on the terminal.
 - **Development Environment**: Designed for development and testing purposes.
 
 ## Usage
 
 ### Prerequisites
 
-- Docker Engine installed on the host machine.
+- Docker
+- Python
+- Docker compose
 
 ### Building and Running
 

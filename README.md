@@ -36,7 +36,7 @@
 ```
 2. **Start Services:**
 ```bash
-   make build
+   make up
 ```
 3. **Access Load Balancer**
 - To check server replicas

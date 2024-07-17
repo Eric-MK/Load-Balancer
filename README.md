@@ -4,6 +4,8 @@
 
 - **load_balancer/**: Contains the load balancer application files.
 - **myserver/**: Contains server application files used by the load balancer.
+- **testing_code/**: Contains Python files to analyse and test the load balancer.
+- **screenshot/**: Contains figures and images for the tested results.
 - **docker-compose.yml**: Defines Docker services for load balancer and server instances.
 - **Makefile**: Provides convenient commands for Docker operations.
 - **Flask**: Chosen for its lightweight and easy-to-use framework for building the load balancer and server applications.
@@ -15,15 +17,38 @@
 
 - **Single Load Balancer**: The setup assumes a single load balancer instance handling all incoming requests.
 - **Request Testing Endpoint**: Assumes testing the load balancer with requests to `http://localhost:5000/home` using different request IDs to verify load balancing functionality.
-- Used 10 request to test the server failure response, for better visual on the terminal.
+- Used 10 requests to test the server failure response, for better visual on the terminal.
 - **Development Environment**: Designed for development and testing purposes.
 
 ## Usage
 
 ### Prerequisites
 
-- Docker Engine installed on the host machine.
+- Docker Version 20.10.23 or above
+- Python
+- Docker compose
+- Ubuntu 20.04 LTS or above
 
+### Docker Installation
+
+Run the following commands to install Docker:
+
+```bash
+   sudo apt-get update
+   sudo apt-get install ca-certificates curl gnupg lsb-release
+   sudo mkdir -p /etc/apt/keyrings
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   sudo apt-get update
+   sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
+To install Docker Compose:
+
+```bash
+   sudo curl -SL https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+   sudo chmod +x /usr/local/bin/docker-compose
+   sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+```
 ### Building and Running
 
 1. **Build Docker Images:**
@@ -32,7 +57,7 @@
 ```
 2. **Start Services:**
 ```bash
-   make build
+   make up
 ```
 3. **Access Load Balancer**
 - To check server replicas

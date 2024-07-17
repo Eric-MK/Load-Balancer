@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  load_balancer:
+    build:
+      context: .
+      dockerfile: ./load_balancer/Dockerfile
+    image: myproject_load_balancer
+    ports:
+      - "5000:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - FLASK_ENV=development
+    privileged: true
+
+  server1:
+    build:
+      context: ./myserver
+    image: myproject_server
+    container_name: server_1
+    ports:
+      - "5001:5000"
+    environment:
+      - SERVER_ID=1
+
+  server2:
+    build:
+      context: ./myserver
+    image: myproject_server
+    container_name: server_2
+    ports:
+      - "5002:5000"
+    environment:
+      - SERVER_ID=2
+
+  server3:
+    build:
+      context: ./myserver
+    image: myproject_server
+    container_name: server_3
+    ports:
+      - "5003:5000"
+    environment:
+      - SERVER_ID=3

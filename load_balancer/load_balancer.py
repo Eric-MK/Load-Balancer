@@ -184,53 +184,59 @@ import bisect
 
 class ConsistentHash:
     def __init__(self, num_slots=512, virtual_servers_per_server=9):
+        # Initialize the hash ring with a specified number of slots and virtual servers per physical server
         self.num_slots = num_slots
         self.virtual_servers_per_server = virtual_servers_per_server
-        self.hash_ring = []
-        self.server_map = {}
+        self.hash_ring = []  # List to store hash values of virtual servers
+        self.server_map = {}  # Dictionary to map hash values to server IDs
 
-    # sh256
+    # SHA256 hash function
     def _hash_function(self, key):
-        """Basic hash function"""
+        """Basic hash function using SHA256"""
         if isinstance(key, int):
             key = str(key)  # Convert integer key to string
+        # Hash the key and map it to the range of available slots
         return int(hashlib.sha256(key.encode('utf-8')).hexdigest(), 16) % self.num_slots
 
-    # md5
+    # MD5 hash function (commented out)
     ''' def _hash_function(self, key):
         if isinstance(key, int):
             key = str(key)  # Convert integer key to string
+        # Hash the key using MD5 and map it to the range of available slots
         return int(hashlib.md5(key.encode('utf-8')).hexdigest(), 16) % self.num_slots '''
 
     def _virtual_server_hash(self, server_id, replica_id):
+        # Generate a unique hash for each virtual server
         combined_id = f"{server_id}#{replica_id}"
         hash_value = self._hash_function(combined_id)
         return hash_value
 
-    
     def add_server(self, server_id):
         """Add server and its replicas to the hash ring"""
         for i in range(self.virtual_servers_per_server):
+            # Create virtual servers and add them to the hash ring
             virtual_hash = self._virtual_server_hash(server_id, i)
             self.hash_ring.append(virtual_hash)
             self.server_map[virtual_hash] = server_id
-        self.hash_ring.sort()
+        self.hash_ring.sort()  # Keep the hash ring sorted for efficient lookups
     
     def remove_server(self, server_id):
         """Remove server and its replicas from the hash ring"""
+        # Remove all virtual servers associated with the given server ID
         self.hash_ring = [h for h in self.hash_ring if self.server_map[h] != server_id]
         self.server_map = {h: s for h, s in self.server_map.items() if s != server_id}
     
     def get_server(self, key):
         """Get server for the given key"""
         if not self.hash_ring:
-            return None
+            return None  # Return None if no servers are available
+        # Hash the key
         hash_value = self._hash_function(key)
+        # Find the first server with a hash greater than or equal to the key's hash
         idx = bisect.bisect(self.hash_ring, hash_value)
         if idx == len(self.hash_ring):
-            idx = 0
+            idx = 0  # Wrap around to the first server if we've reached the end
         return self.server_map[self.hash_ring[idx]]
-
 # Initialize the consistent hash
 consistent_hash = ConsistentHash()
 
